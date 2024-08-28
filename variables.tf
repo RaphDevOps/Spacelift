@@ -1,49 +1,31 @@
+variable "resource_group_name" {
+  description = "The name of the resource group"
+  type        = string
+}
+
 variable "location" {
-  description = "RG location"
-  type = string
+  description = "The location where the resources will be created"
+  type        = string
+  default     = "East US"
 }
 
-variable "rg_name" {
-  description = "RG name"
-  type = string
+variable "vm_name" {
+  description = "The name of the virtual machine"
+  type        = string
 }
 
-variable "virtual_network" {
-  description = "virtual network name"
-  type = string
+variable "vm_size" {
+  description = "The size of the virtual machine"
+  type        = string
+  default     = "Standard_DS1_v2"
 }
 
-variable "address_prefixes" {
-  description = "address prefixes for the subnet"
-  type = list(string)
+variable "admin_username" {
+  description = "The admin username for the virtual machine"
+  type        = string
 }
 
-variable "azurerm_virtual_network" {
-  description = "address space for azurerm_virtual_network"
-  type = list(string)
+variable "ssh_public_key_path" {
+  description = "The path to the SSH public key to be used for the VM"
+  type        = string
 }
-
-variable "azurerm_subnet" {
-  description = "subnet name"
-  type = string
-}
-
-
-variable "azurerm_virtual_machine" {
-  description = "azure vm name"
-  type = string
-}
-
-
-variable "ip_configuration" {
-  description = "ip_configuration"
-  type = string
-}
-
-variable "vm_tag" {
-    description = "virtual machine tag"
-    type = map(string)
-}
-
-# new variable
-

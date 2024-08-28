@@ -1,20 +1,65 @@
-module "vm_module" {
-  source = "../modules/vm"
+
+# Define the resource group
+resource "azurerm_resource_group" "rg" {
+  name     = var.resource_group_name
   location = var.location
+}
 
-  rg_name = var.rg_name
+# Define the virtual network
+resource "azurerm_virtual_network" "vnet" {
+  name                = "${var.vm_name}-vnet"
+  address_space       = ["10.0.0.0/16"]
+  location            = azurerm_resource_group.rg.location
+  resource_group_name = azurerm_resource_group.rg.name
+}
 
-  virtual_network = var.virtual_network
+# Define the subnet
+resource "azurerm_subnet" "subnet" {
+  name                 = "${var.vm_name}-subnet"
+  resource_group_name  = azurerm_resource_group.rg.name
+  virtual_network_name = azurerm_virtual_network.vnet.name
+  address_prefixes     = ["10.0.1.0/24"]
+}
 
-  address_prefixes = var.address_prefixes
+# Define the network interface
+resource "azurerm_network_interface" "nic" {
+  name                = "${var.vm_name}-nic"
+  location            = azurerm_resource_group.rg.location
+  resource_group_name = azurerm_resource_group.rg.name
 
-  azurerm_virtual_network = var.azurerm_virtual_network
+  ip_configuration {
+    name                          = "internal"
+    subnet_id                     = azurerm_subnet.subnet.id
+    private_ip_address_allocation = "Dynamic"
+  }
+}
 
-  azurerm_subnet = var.azurerm_subnet
+# Define the virtual machine
+resource "azurerm_linux_virtual_machine" "vm" {
+  name                = var.vm_name
+  location            = azurerm_resource_group.rg.location
+  resource_group_name = azurerm_resource_group.rg.name
+  size                = var.vm_size
+  admin_username      = var.admin_username
 
-  ip_configuration = var.ip_configuration
+  network_interface_ids = [
+    azurerm_network_interface.nic.id,
+  ]
 
-  azurerm_virtual_machine = var.azurerm_virtual_machine
+  admin_ssh_key {
+    username   = var.admin_username
+    public_key = file(var.ssh_public_key_path)
+  }
 
-  vm_tag = var.vm_tag
+  os_disk {
+    caching              = "ReadWrite"
+    storage_account_type = "Standard_LRS"
+  }
+
+  source_image_reference {
+    publisher = "Canonical"
+    offer     = "UbuntuServer"
+    sku       = "18.04-LTS"
+    version   = "latest"
+  }
 }
