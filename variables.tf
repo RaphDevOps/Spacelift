@@ -45,3 +45,5 @@ variable "vm_tag" {
     type = map(string)
 }
 
+# new variable
+
